@@ -1,0 +1,32 @@
+//GVL
+  PageHistory:ARRAY[1..10] OF INT;
+  PageHistoryMax:INT:=10;
+  PageHistoryPosition:INT:=1;
+  PageHistoryEnd:INT:=1;
+  PageHistoryBeginning:INT:=1;
+  PageHistoryTotal:INT:=1;
+  CurrentPage:INT;
+
+//On page change event:
+  PageHistoryPosition:=PageHistoryPosition+1; IF (PageHistoryPosition>PageHistoryMax) THEN PageHistoryPosition:=1; END_IF
+  PageHistoryEnd:=PageHistoryPosition;
+  IF (PageHistoryEnd<>PageHistoryBeginning) THEN
+    IF (PageHistoryBeginning<PageHistoryEnd) THEN 
+      PageHistoryTotal:=PageHistoryEnd-PageHistoryBeginning+1; ELSE 
+      PageHistoryTotal:=PageHistoryMax+1-PageHistoryBeginning+PageHistoryEnd; END_IF ELSE
+    PageHistoryBeginning:=PageHistoryEnd+1; IF (PageHistoryEnd=PageHistoryMax) THEN PageHistoryBeginning:=1; END_IF PageHistoryTotal:=PageHistoryMax;
+  END_IF
+  PageHistory[PageHistoryPosition]:=CurrentPage;
+
+//Go previous in history
+  IF (PageHistoryBeginning<>PageHistoryPosition) THEN 
+    PageHistoryPosition:=PageHistoryPosition-1; IF (PageHistoryPosition<1) THEN PageHistoryPosition:=PageHistoryMax; END_IF
+    CurrentPage:=PageHistory[PageHistoryPosition];
+  END_IF
+
+//Go next in history
+  IF (PageHistoryEnd<>PageHistoryPosition) THEN 
+    PageHistoryPosition:=PageHistoryPosition+1; IF (PageHistoryPosition>PageHistoryMax) THEN PageHistoryPosition:=1; END_IF
+    CurrentPage:=PageHistory[PageHistoryPosition];
+  END_IF
+
