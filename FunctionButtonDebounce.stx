@@ -25,3 +25,49 @@ ELSE
 		ButtonDebounce^:=FALSE; ReleaseButton^:=FALSE;
 	END_IF
 END_IF
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Usage
+
+PROGRAM ScriptButtonDebounce
+VAR
+	DebounceTime:TIME:=T#100MS;
+	DebounceButton1:TON;      PressButton1:BOOL;      ReleaseButton1:BOOL;
+	DebounceButton2:TON;      PressButton2:BOOL;      ReleaseButton2:BOOL;
+	DebounceButton3:TON;      PressButton3:BOOL;      ReleaseButton3:BOOL;
+	DebounceButton4:TON;      PressButton4:BOOL;      ReleaseButton4:BOOL;
+	DebounceButton5:TON;      PressButton5:BOOL;      ReleaseButton5:BOOL;
+	DebounceButton6:TON;      PressButton6:BOOL;      ReleaseButton6:BOOL;
+	DebounceButtonLeft:TON;   PressButtonLeft:BOOL;   ReleaseButtonLeft:BOOL;
+	DebounceButtonUp:TON;     PressButtonUp:BOOL;     ReleaseButtonUp:BOOL;
+	DebounceButtonRight:TON;  PressButtonRight:BOOL;  ReleaseButtonRight:BOOL;
+	DebounceButtonDown:TON;   PressButtonDown:BOOL;   ReleaseButtonDown:BOOL;
+	DebounceButtonCenter:TON; PressButtonCenter:BOOL; ReleaseButtonCenter:BOOL;
+	FunctionButtonDebounce:FunctionButtonDebounce;
+END_VAR
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+DebounceButton1(in:=DebounceButton1.IN, pt:=DebounceTime);
+DebounceButton2(in:=DebounceButton2.IN, pt:=DebounceTime);
+DebounceButton3(in:=DebounceButton3.IN, pt:=DebounceTime);
+DebounceButton4(in:=DebounceButton4.IN, pt:=DebounceTime);
+DebounceButton5(in:=DebounceButton5.IN, pt:=DebounceTime);
+DebounceButton6(in:=DebounceButton6.IN, pt:=DebounceTime);
+DebounceButtonLeft(in:=DebounceButtonLeft.IN, pt:=DebounceTime);
+DebounceButtonUp(in:=DebounceButtonUp.IN, pt:=DebounceTime);
+DebounceButtonRight(in:=DebounceButtonRight.IN, pt:=DebounceTime);
+DebounceButtonDown(in:=DebounceButtonDown.IN, pt:=DebounceTime);
+DebounceButtonCenter(in:=DebounceButtonCenter.IN, pt:=DebounceTime);
+
+FunctionButtonDebounce(DebounceButton:=ADR(DebounceButton1), PressButton:=ADR(PressButton1), ReleaseButton:=ADR(ReleaseButton1), ButtonDebounce:=ADR(ScriptButtonDebounce_Button1));
+FunctionButtonDebounce(DebounceButton:=ADR(DebounceButton2), PressButton:=ADR(PressButton2), ReleaseButton:=ADR(ReleaseButton2), ButtonDebounce:=ADR(ScriptButtonDebounce_Button2));
+FunctionButtonDebounce(DebounceButton:=ADR(DebounceButton3), PressButton:=ADR(PressButton3), ReleaseButton:=ADR(ReleaseButton3), ButtonDebounce:=ADR(ScriptButtonDebounce_Button3));
+FunctionButtonDebounce(DebounceButton:=ADR(DebounceButton4), PressButton:=ADR(PressButton4), ReleaseButton:=ADR(ReleaseButton4), ButtonDebounce:=ADR(ScriptButtonDebounce_Button4));
+FunctionButtonDebounce(DebounceButton:=ADR(DebounceButton5), PressButton:=ADR(PressButton5), ReleaseButton:=ADR(ReleaseButton5), ButtonDebounce:=ADR(ScriptButtonDebounce_Button5));
+FunctionButtonDebounce(DebounceButton:=ADR(DebounceButton6), PressButton:=ADR(PressButton6), ReleaseButton:=ADR(ReleaseButton6), ButtonDebounce:=ADR(ScriptButtonDebounce_Button6));
+FunctionButtonDebounce(DebounceButton:=ADR(DebounceButtonLeft), PressButton:=ADR(PressButtonLeft), ReleaseButton:=ADR(ReleaseButtonLeft), ButtonDebounce:=ADR(ScriptButtonDebounce_Button_Left));
+FunctionButtonDebounce(DebounceButton:=ADR(DebounceButtonUp), PressButton:=ADR(PressButtonUp), ReleaseButton:=ADR(ReleaseButtonUp), ButtonDebounce:=ADR(ScriptButtonDebounce_Button_Up));
+FunctionButtonDebounce(DebounceButton:=ADR(DebounceButtonRight), PressButton:=ADR(PressButtonRight), ReleaseButton:=ADR(ReleaseButtonRight), ButtonDebounce:=ADR(ScriptButtonDebounce_Button_Right));
+FunctionButtonDebounce(DebounceButton:=ADR(DebounceButtonDown), PressButton:=ADR(PressButtonDown), ReleaseButton:=ADR(ReleaseButtonDown), ButtonDebounce:=ADR(ScriptButtonDebounce_Button_Down));
+FunctionButtonDebounce(DebounceButton:=ADR(DebounceButtonCenter), PressButton:=ADR(PressButtonCenter), ReleaseButton:=ADR(ReleaseButtonCenter), ButtonDebounce:=ADR(ScriptButtonDebounce_Button_Center));
