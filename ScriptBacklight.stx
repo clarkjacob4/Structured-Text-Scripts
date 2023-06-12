@@ -1,0 +1,95 @@
+PROGRAM ScriptBacklight
+VAR
+	SetBootupBacklightFB:ifmDevice.SetBootupBacklight;
+	GetLightSensorFB:ifmDevice.GetLightSensor;
+	SetLCD_BacklightFB:ifmDevice.SetLCD_Backlight;
+	
+	BacklightHistory:ARRAY[1..10] OF UINT;
+	BacklightHistoryMax:INT:=10;
+	BacklightHistoryPosition:INT:=1;
+	BacklightHistoryPositionTemp:INT:=1;
+	BacklightHistoryEnd:INT:=1;
+	BacklightHistoryBeginning:INT:=1;
+	BacklightHistoryTotal:INT:=1;
+	BacklightHistoryAverage:UINT;
+	BacklightHistoryAverageTemp:UINT;
+	BacklightHistoryCount:UINT;
+	BacklightBrightnessTarget:UINT;
+	
+	BacklightBrightnessOld:USINT:=0;
+	LightSensorRead:UINT;
+	LightSensorTemp:REAL;
+	LightSensorReadOld:UINT;
+	
+	MinScale:REAL:=28.2655;
+	MaxScale:REAL:=71.7345;
+	MinScaleOld:REAL:=28.2655;
+	MaxScaleOld:REAL:=71.7345;
+	MinScaleNew:REAL:=28.2655;
+	MaxScaleNew:REAL:=71.7345;
+	
+	MessageRefresh:MessageRefresh;
+END_VAR
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+IF pTags_BacklightMode=1 THEN
+	GetLightSensorFB(xExecute:=NOT(GetLightSensorFB.xDone));
+	IF GetLightSensorFB.xDone THEN
+		LightSensorTemp:=UINT_TO_REAL(GetLightSensorFB.uiAmbientLight);
+		IF(MinScale<>MinScaleOld)THEN IF MinScale-28.2655>MaxScale THEN MinScale:=MaxScale+28.2655; ELSE MinScaleOld:=MinScale; END_IF END_IF
+		IF(MaxScale<>MaxScaleOld)THEN IF MinScale-28.2655>MaxScale THEN MaxScale:=MinScale-28.2655; ELSE MaxScaleOld:=MaxScale; END_IF END_IF
+		MinScaleNew:=MinScale; MaxScaleNew:=MaxScale;
+		LightSensorRead:=REAL_TO_UINT(MIN(4095,MAX(0,LightSensorTemp*(0.394029-0.0139403*MinScaleNew)+57.0855*MinScaleNew+0.0139403*MaxScaleNew*LightSensorTemp-1613.55)));
+	END_IF
+	IF(ScriptTimers.Blink1PerSecFlash)THEN
+		LightSensorReadOld:=LightSensorRead;
+		BacklightHistoryPosition:=BacklightHistoryPosition+1; IF (BacklightHistoryPosition>BacklightHistoryMax) THEN BacklightHistoryPosition:=1; END_IF
+		BacklightHistoryEnd:=BacklightHistoryPosition;
+		IF (BacklightHistoryEnd<>BacklightHistoryBeginning) THEN
+			IF (BacklightHistoryBeginning<BacklightHistoryEnd) THEN 
+				BacklightHistoryTotal:=BacklightHistoryEnd-BacklightHistoryBeginning+1; ELSE 
+				BacklightHistoryTotal:=BacklightHistoryMax+1-BacklightHistoryBeginning+BacklightHistoryEnd; END_IF ELSE
+			BacklightHistoryBeginning:=BacklightHistoryEnd+1; IF (BacklightHistoryEnd=BacklightHistoryMax) THEN BacklightHistoryBeginning:=1; END_IF BacklightHistoryTotal:=BacklightHistoryMax;
+		END_IF
+		BacklightHistory[BacklightHistoryPosition]:=LightSensorRead;
+		BacklightHistoryPositionTemp:=BacklightHistoryPosition;
+		BacklightHistoryAverage:=BacklightHistory[BacklightHistoryPosition];
+		BacklightHistoryCount:=1;
+		WHILE (BacklightHistoryBeginning<>BacklightHistoryPositionTemp) DO
+		BacklightHistoryCount:=BacklightHistoryCount+1;
+		BacklightHistoryPositionTemp:=BacklightHistoryPositionTemp-1; IF (BacklightHistoryPositionTemp<1) THEN BacklightHistoryPositionTemp:=BacklightHistoryMax; END_IF
+		BacklightHistoryAverage:=((BacklightHistoryAverage*(BacklightHistoryCount-1))+BacklightHistory[BacklightHistoryPositionTemp])/BacklightHistoryCount;
+		END_WHILE
+		BacklightHistoryAverageTemp:=BacklightHistoryAverage*80/4095+20;
+		IF(((pTags.BootScreenBrightness+10)<=BacklightHistoryAverageTemp)OR((pTags.BootScreenBrightness-10)>=BacklightHistoryAverageTemp))THEN
+			pTags.BootScreenBrightness:=BacklightHistoryAverageTemp;
+			IF pTags_MessageBacklightEnable THEN
+				MessageRefresh(); ScriptTimers_MessageBacklight:=TRUE;
+			END_IF
+			SetBootupBacklightFB(xExecute:=TRUE,usiBrightness:=UINT_TO_USINT(BacklightHistoryAverageTemp));
+			ScriptButtonLEDs_ResetLEDs:=TRUE;
+		ELSIF((BacklightHistoryAverage>=3890)AND(pTags.BootScreenBrightness<>100))THEN
+			pTags.BootScreenBrightness:=100;
+			IF pTags_MessageBacklightEnable THEN
+				MessageRefresh(); ScriptTimers_MessageBacklight:=TRUE;
+			END_IF
+			SetBootupBacklightFB(xExecute:=TRUE,usiBrightness:=100);
+			ScriptButtonLEDs_ResetLEDs:=TRUE;
+		END_IF
+	END_IF
+	IF(pTags_BacklightBrightnessNew<>pTags.BootScreenBrightness)THEN
+		IF(pTags_BacklightBrightnessNew<pTags.BootScreenBrightness)THEN pTags_BacklightBrightnessNew:=pTags_BacklightBrightnessNew+1; 
+		ELSIF(pTags_BacklightBrightnessNew>pTags.BootScreenBrightness)THEN pTags_BacklightBrightnessNew:=pTags_BacklightBrightnessNew-1; END_IF
+		SetLCD_BacklightFB(xEnable:=TRUE, usiBrightness:=pTags_BacklightBrightnessNew);
+	END_IF
+ELSE
+	IF (BacklightHistoryEnd<>BacklightHistoryBeginning) THEN
+		BacklightHistoryEnd:=BacklightHistoryBeginning;
+	END_IF
+	IF(pTags_BacklightBrightnessNew<>pTags.BootScreenBrightness)THEN
+		pTags.BootScreenBrightness:=USINT_TO_UINT(pTags_BacklightBrightnessNew);
+		SetLCD_BacklightFB(xEnable:=TRUE, usiBrightness:=pTags_BacklightBrightnessNew);
+		SetBootupBacklightFB(xExecute:=TRUE,usiBrightness:=pTags_BacklightBrightnessNew);
+	END_IF
+END_IF
