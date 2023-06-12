@@ -1,0 +1,27 @@
+FUNCTION_BLOCK FunctionButtonDebounce
+VAR_INPUT
+	DebounceButton:POINTER TO TON;
+	PressButton:POINTER TO BOOL;
+	ReleaseButton:POINTER TO BOOL;
+	ButtonDebounce:POINTER TO BOOL;
+END_VAR
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+IF DebounceButton^.IN THEN
+	IF(DebounceButton^.q) THEN
+		DebounceButton^(IN:=FALSE);
+	ELSE
+		IF PressButton^ THEN
+			ReleaseButton^:=FALSE; PressButton^:=FALSE;
+		END_IF
+	END_IF
+ELSE
+	IF PressButton^ THEN
+		ButtonDebounce^:=TRUE; DebounceButton^(IN:=TRUE); PressButton^:=FALSE;
+		IF ButtonDebounce=ADR(ScriptButtonDebounce_Button_Center) THEN ScriptButtonDebounce_ButtonCenterOneShot:=TRUE; END_IF
+	END_IF
+	IF ReleaseButton^ THEN
+		ButtonDebounce^:=FALSE; ReleaseButton^:=FALSE;
+	END_IF
+END_IF
