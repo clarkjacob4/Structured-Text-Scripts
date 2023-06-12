@@ -1,0 +1,18 @@
+FUNCTION_BLOCK ColorCreate
+VAR_INPUT
+	Red:BYTE;//0-255
+	Green:BYTE;//0-255
+	Blue:BYTE;//0-255
+	Alpha:BYTE:=255;//0-255
+END_VAR
+VAR_OUTPUT
+	Out:DWORD;
+END_VAR
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//16#FFFFFFFF
+Out:=BYTE_TO_DWORD(Blue)+BYTE_TO_DWORD(Green)*256+BYTE_TO_DWORD(Red)*65536+BYTE_TO_DWORD(Alpha)*16777216;
+
+//16#00FFFFFF - Applies alpha directly to RGB, assuming 0 alpha is black
+//Out:=(BYTE_TO_DWORD(Alpha)*BYTE_TO_DWORD(Blue)/255+BYTE_TO_DWORD(Alpha)*BYTE_TO_DWORD(Green)/255*256+BYTE_TO_DWORD(Alpha)*BYTE_TO_DWORD(Red)/255*65536);
